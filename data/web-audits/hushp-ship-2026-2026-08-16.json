@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": "Extended the same-day run with direct PDF extraction (BD Schedule of Benefits, BD pharmacy section, SMB) after the first pass only crawled HTML pages and left 7 facts not_findable. All 7 are now resolved; one HTML-only finding (preventive_care_cost_share) got upgraded from a suspected mismatch to a document-confirmed one; two needs_slot items got document confirmation that changes what they mean.",
+  "revision": "Extended the same-day run with direct PDF extraction (BD Schedule of Benefits, BD pharmacy section, SMB) after the first pass only crawled HTML pages and left 7 facts not_findable. All 7 are now resolved; one HTML-only finding (preventive_care_cost_share) got upgraded from a suspected mismatch to a document-confirmed one; two needs_slot items got document confirmation that changes what they mean. Further revised same day: user manually downloaded the Summary of Medical Benefits from the authenticated BCBSMA member portal (member.bluecrossma.com) and dropped it in data/member-uploads/hushp-ship-2026/ per docs/MEMBER-PORTAL-DOCUMENTS.md -- this tool never logged in. Verified byte-identical (SHA-256 match) to the already-fetched public SMB PDF: the member portal serves the exact same file, not a personalized or expanded version. No new facts to extract; recorded as a documents_fetched entry and a finding, not a source of new content.",
   "plan_id": "hushp-ship-2026",
   "site": "hushp.harvard.edu",
   "audited_at": "2026-08-16T19:30:00Z",
@@ -22,7 +22,16 @@
       "url": "https://hushp.harvard.edu/files/2026/07/Summary-of-Medical-Benefits.pdf",
       "pages_extracted": "6 (PDF page basis, per the plan profile's own note on this document)",
       "method": "local-extraction",
-      "note": "Same WebFetch garbling issue; same fallback."
+      "note": "Same WebFetch garbling issue; same fallback.",
+      "sha256": "ac99e4356197de93e5e9f9cf8d504ac073fd94ae8e41920a0a8d5fec84825fd"
+    },
+    {
+      "local_path": "data/member-uploads/hushp-ship-2026/Summary-of-Medical-Benefits.pdf",
+      "access": "member_portal_manual_download",
+      "pages_extracted": "1-10 (full document -- only 10 pages)",
+      "method": "local-extraction",
+      "sha256": "ac99e4356197de93e5e9f9cf8d504ac073fd94ae8e41920a0a8d5fec84825fd",
+      "note": "User downloaded this from member.bluecrossma.com (authenticated portal) and dropped it in the intake folder; this tool never logged in, per docs/MEMBER-PORTAL-DOCUMENTS.md. SHA-256 and per-page extracted text are byte/text-identical to the publicly-fetched SMB above -- confirmed via direct hash comparison, not just a visual check. The member portal is not gating any additional or personalized content for this document; it serves the identical public PDF."
     }
   ],
   "plan_profile_source": {
