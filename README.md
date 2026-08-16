@@ -75,6 +75,8 @@ docs/
   triangulation/                 phone-transcript vs web-audit vs document cross-checks
 .claude/agents/
   web-plan-auditor.md            the audit subagent — start here
+web/
+  ...                             static Next.js dashboard for data/web-audits/, see web/README.md
 ```
 
 ## Getting started
@@ -99,3 +101,11 @@ To pull a fresher copy of the shared plan data, see `docs/SYNC.md`.
 Short version: log in yourself, download it, drop it in
 `data/member-uploads/<plan_id>/`, then ask the agent to run again — it
 picks the file up from there and processes it exactly like a public PDF.
+
+## Web dashboard
+
+`web/` is a static Next.js viewer for everything in `data/web-audits/` —
+findings table, needs-slot requests, source provenance (public vs.
+member-portal-manual), all rendered from the same JSON the agent writes.
+See [`web/README.md`](web/README.md) for local dev and deploy instructions
+(`vercel deploy --temporary` works without logging in, for quick checks).
