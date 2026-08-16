@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "revision": "Extended the same-day run with direct PDF extraction (BD Schedule of Benefits, BD pharmacy section, SMB) after the first pass only crawled HTML pages and left 7 facts not_findable. All 7 are now resolved; one HTML-only finding (preventive_care_cost_share) got upgraded from a suspected mismatch to a document-confirmed one; two needs_slot items got document confirmation that changes what they mean. Further revised same day: user manually downloaded the Summary of Medical Benefits from the authenticated BCBSMA member portal (member.bluecrossma.com) and dropped it in data/member-uploads/hushp-ship-2026/ per docs/MEMBER-PORTAL-DOCUMENTS.md -- this tool never logged in. Verified byte-identical (SHA-256 match) to the already-fetched public SMB PDF: the member portal serves the exact same file, not a personalized or expanded version. No new facts to extract; recorded as a documents_fetched entry and a finding, not a source of new content.",
+  "plan_id": "hushp-ship-2026",
+  "site": "hushp.harvard.edu",
+  "audited_at": "2026-08-16T19:30:00Z",
+  "pages_crawled": [
+    "https://hushp.harvard.edu/how-hushp-works/hushp-resources/",
+    "https://hushp.harvard.edu/your-benefits/",
+    "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+    "https://hushp.harvard.edu/mental-health-coverage/",
+    "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/vision-care/"
+  ],
+  "documents_fetched": [
+    {
+      "url": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "pages_extracted": "5-13 (Schedule of Benefits, printed p.1-9), 68-71 (Prescription Drugs and Supplies body section, printed p.51-54)",
+      "method": "local-extraction",
+      "note": "WebFetch returned garbled/unreadable content for this PDF (font encoding artifacts); fell back to reading WebFetch's saved raw file with local text extraction, using the plan profile's own page_zones offsets (printed+4 for the SoB zone, printed+17 for the body zone) to target the right pages."
+    },
+    {
+      "url": "https://hushp.harvard.edu/files/2026/07/Summary-of-Medical-Benefits.pdf",
+      "pages_extracted": "6 (PDF page basis, per the plan profile's own note on this document)",
+      "method": "local-extraction",
+      "note": "Same WebFetch garbling issue; same fallback.",
+      "sha256": "ac99e4356197de93e5e9f9cf8d504ac073fd94ae8e41920a0a8d5fec84825fd"
+    },
+    {
+      "local_path": "data/member-uploads/hushp-ship-2026/Summary-of-Medical-Benefits.pdf",
+      "access": "member_portal_manual_download",
+      "pages_extracted": "1-10 (full document -- only 10 pages)",
+      "method": "local-extraction",
+      "sha256": "ac99e4356197de93e5e9f9cf8d504ac073fd94ae8e41920a0a8d5fec84825fd",
+      "note": "User downloaded this from member.bluecrossma.com (authenticated portal) and dropped it in the intake folder; this tool never logged in, per docs/MEMBER-PORTAL-DOCUMENTS.md. SHA-256 and per-page extracted text are byte/text-identical to the publicly-fetched SMB above -- confirmed via direct hash comparison, not just a visual check. The member portal is not gating any additional or personalized content for this document; it serves the identical public PDF."
+    }
+  ],
+  "plan_profile_source": {
+    "repo": "call-center-audit",
+    "commit": "4a397d86",
+    "file": "data/plans/hushp-2026.json"
+  },
+  "findings": [
+    {
+      "slot": "rx_tier_1_retail",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "$17",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "$17 copayment, Tier 1 (generic), retail, per 30-day supply",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.6" }
+    },
+    {
+      "slot": "rx_tier_2_retail",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "$40",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "$40 copayment, Tier 2 (preferred brand), retail, per 30-day supply",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.6" }
+    },
+    {
+      "slot": "rx_tier_3_retail",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "$55",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "$55 copayment, Tier 3 (non-preferred), retail, per 30-day supply",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.6" }
+    },
+    {
+      "slot": "rx_mail_order",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "$51 / $120 / $165 for Tiers 1/2/3, 90-day mail order supply",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "Designated mail-order pharmacy, 90-day supply: $51 / $120 / $165 (Tiers 1/2/3)",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.6" }
+    },
+    {
+      "slot": "oop_max_rx",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "$1,300 individual / $2,600 family",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "Separate prescription-drug out-of-pocket maximum: $1,300 per member / $2,600 per family per plan year",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.2" }
+    },
+    {
+      "slot": "deductible_individual_in_network",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$0 per member, $0 per family, in-network",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.2" },
+      "note": "Not stated on any crawled HTML page; confirmed directly from the BD PDF itself. Since the PDF is the plan profile's own source document, this validates the profile's transcription rather than an independently-authored second source -- worth less as cross-source corroboration than the Rx findings above, but resolves what the first pass reported as not_findable."
+    },
+    {
+      "slot": "deductible_individual_out_of_network",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$250 per member / $500 per family per plan year, out-of-network only",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.2" },
+      "note": "Same caveat as deductible_individual_in_network -- confirmed from the PDF, not an independent web source."
+    },
+    {
+      "slot": "pcp_cost_share",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$35 copayment per office/health-center/home visit in-network; 30% after deductible out-of-network",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.5 and footnote ** (SoB p.9)" },
+      "note": "Confirmed from the PDF: 'Office, health center, and home medical services: $35 copayment per visit**' (SoB p.5, PDF p.9), footnote ** on SoB p.9 (PDF p.13) confirms the OB/GYN and under-18-Atrius-provider waiver exactly as the plan profile states."
+    },
+    {
+      "slot": "specialist_cost_share",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$35 copayment per visit in-network (same line item as PCP -- no separate specialist tier); 30% after deductible out-of-network",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.5" },
+      "note": "Confirmed: the Schedule of Benefits has one 'Medical Care Outpatient Visits' line covering both PCP and specialist office visits at $35 -- no separate specialist row exists in the document."
+    },
+    {
+      "slot": "er_cost_share",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$100 copayment per ER visit; waived if held for observation or admitted within 24 hours; out-of-network same as in-network",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.3" },
+      "note": "Cross-confirmed by a second document: SMB p.6 independently states the identical figure ('$100 copayment (waived if admitted)', 'no deductible' out-of-network) -- BD and SMB agree here, unlike the Rx-supply-limit conflict below."
+    },
+    {
+      "slot": "urgent_care_cost_share",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/07/Summary-of-Medical-Benefits.pdf",
+      "document_value": "$35 copayment in-network; 30% coinsurance out-of-network",
+      "citation": { "type": "plan_document", "doc": "SMB", "page": "p.6" },
+      "note": "This fact isn't in the Benefit Description's Schedule of Benefits at all (no distinct 'Urgent Care' line item there) -- it only exists in the Summary of Medical Benefits, matching the plan profile's own citation choice (SMB, not BD) for this slot."
+    },
+    {
+      "slot": "inpatient_hospital_cost_share",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": null,
+      "website_source": "https://hushp.harvard.edu/files/2026/08/Benefit-Description.pdf",
+      "document_value": "$100 copayment per admission at most network hospitals; $500 at Hospital Choice Cost Sharing higher-tier hospitals",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.2" },
+      "note": "Cross-confirmed by SMB p.6 ('$100 copayment per admission at lower-cost-share hospitals, $500 at higher-cost-share hospitals') -- BD and SMB agree. The specific higher-tier hospital list (HCCS rider) was not checked in this run -- the profile itself flags that rider as unattached to the posted 2026 PDF."
+    },
+    {
+      "slot": "mental_health_outpatient",
+      "verdict": "match",
+      "severity": "pass",
+      "website_value": "\"No visit limit (in and out-of-network combined)\"",
+      "website_source": "https://hushp.harvard.edu/mental-health-coverage/",
+      "document_value": "No charge for first 8 visits per plan year, then $35 copayment per visit; 30% after deductible out-of-network",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.5" },
+      "note": "Website and document describe different dimensions, not a contradiction: the website confirms there's no cap on the NUMBER of visits, the document (BD SoB p.5, cross-confirmed SMB p.6) states the COST-SHARE per visit. Both are true simultaneously. Resolves the ambiguity the first pass flagged."
+    },
+    {
+      "slot": "rx_retail_supply_limit_CONFLICT",
+      "verdict": "document_conflict",
+      "severity": "warning",
+      "website_value": "\"Copayments for prescriptions purchased at a retail pharmacy are up to a 30-day supply.\" — matches BD, not SMB.",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "BD Schedule of Benefits: 30-day retail supply (confirmed directly in the PDF: '(30-day supply†)' with a footnote limiting certain drugs to 30 days). SMB: 'up to a 60-day formulary supply for each prescription or refill' -- but SMB's own footnote 5 concedes 'Certain medications limited to 30-day supply,' which softens the conflict from a flat 30-vs-60 disagreement to SMB stating a looser general rule with an internal exception that may cover most of the formulary.",
+      "citation": [
+        { "type": "plan_document", "doc": "BD", "page": "SoB p.6" },
+        { "type": "plan_document", "doc": "SMB", "page": "p.6" }
+      ],
+      "note": "Website sides with BD. Reading SMB's own footnote 5 directly (not just the headline 60-day figure) narrows this from 'two documents flatly disagree' to 'SMB's general rule and footnote may not even disagree with BD once you read past the table' -- still worth a human resolving with HUSHP Member Services, per the plan profile's own open_items, but less alarming than the first pass suggested."
+    },
+    {
+      "slot": "preventive_care_cost_share",
+      "verdict": "mismatch",
+      "severity": "critical",
+      "website_value": "Routine vision exam: no copay mentioned. Non-routine vision exam: $35 copayment in-network, 30% coinsurance out-of-network.",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/vision-care/",
+      "document_value": "Directly confirmed in the BD PDF text (not just the plan profile's transcription): under 'Routine vision care' > 'Routine vision exams (one exam per member per plan year)': '$35 copayment per visit' in-network, '30% after deductible' out-of-network. There is no separate 'non-routine vision exam' line item anywhere in the Schedule of Benefits.",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.7" },
+      "note": "Upgraded from the first pass's 'possible stale citation' framing: this is now a primary-source-confirmed contradiction, not just the plan profile's word against the website's. The document explicitly labels the $35 exam 'routine' and has no 'non-routine' exam category at all -- the website's framing appears to simply be wrong, not a citation problem on our side."
+    }
+  ],
+  "needs_slot": [
+    {
+      "proposed_name": "rx_pbm_subcontractor",
+      "website_value": "CVS Caremark (named for out-of-network pharmacy paper-claim reimbursement)",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "note": "Read the full BD pharmacy section (SoB p.6 and body pp.51-54, PDF pages 68-71) directly -- no PBM subcontractor is named anywhere; only 'Blue Cross and Blue Shield' and bluecrossma.org are referenced. This independently confirms the plan profile's own caveat that the PBM isn't documented. The website may be the only public source naming it."
+    },
+    {
+      "proposed_name": "rx_antimalarial_cost_share",
+      "website_value": "50% coinsurance for antimalarial drugs (Malarone, Mefloquine, Coartem, Primaquine)",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "\"Note: There are certain drugs that are used only for the treatment of malaria. For these covered drugs, you will pay 50% (instead of your applicable copayment).\"",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.6" },
+      "note": "Now document-confirmed, not just website-only. Distinct tier structure from the standard Rx tiers; no existing slot covers it."
+    },
+    {
+      "proposed_name": "rx_contraceptive_waiver_scope",
+      "website_value": "$0 copayment for prescription contraceptive products that are generic or brand name",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/prescription-drug-benefits/",
+      "document_value": "\"Your cost share will be waived for generic birth control drugs and methods (or for a brand-name drug or method when a generic is not available or not medically appropriate for you)...\"",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "p.53" },
+      "note": "Reclassified from the first pass: initially looked like the website might be overstating the waiver (profile's SoB footnote only mentions Tier-1/generic). Reading body p.53 directly shows the website is accurate -- brand-name IS waived, conditionally on medical necessity, a nuance the website omits but doesn't contradict. Still needs its own slot since neither the SoB footnote nor a single existing fact captures the full rule."
+    },
+    {
+      "proposed_name": "mental_health_visit_limit",
+      "website_value": "No visit limit, in and out-of-network combined",
+      "website_source": "https://hushp.harvard.edu/mental-health-coverage/",
+      "document_value": "Neither BD nor SMB states an explicit overall visit cap for outpatient mental health -- both describe only the per-visit cost-share structure (first 8 free, then $35/30%).",
+      "note": "Document doesn't contradict the website's claim, but doesn't affirmatively state 'no limit' either -- it's simply silent on a cap. Distinct dimension from the existing mental_health_outpatient cost-share slot; still needs its own slot to be gradable on its own terms rather than inferred from silence."
+    },
+    {
+      "proposed_name": "vision_eyewear_coverage",
+      "website_value": "Pediatric (under 19): 35% coinsurance in-network, 55% out-of-network. Adult (19+): not covered. LASIK: not covered.",
+      "website_source": "https://hushp.harvard.edu/benefits/student-health-insurance-plan-ship/vision-care/",
+      "document_value": "\"Vision supplies/related services... for members until the end of the calendar month member turns age 19: 35% / 55% after deductible... for members age 19 or older (and not eligible for pediatric vision benefits): Not covered / Not covered.\"",
+      "citation": { "type": "plan_document", "doc": "BD", "page": "SoB p.7" },
+      "note": "Now document-confirmed as an exact match to the website. No existing slot covers eyewear at all, only exams -- strong candidate to actually add."
+    }
+  ],
+  "summary": {
+    "total_findings": 15,
+    "match": 13,
+    "mismatch": 1,
+    "document_conflict": 1,
+    "not_findable": 0,
+    "needs_slot": 5
+  }
+}

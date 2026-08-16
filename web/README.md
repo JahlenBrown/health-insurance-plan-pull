@@ -58,8 +58,19 @@ npm run dev      # http://localhost:3000, data re-synced automatically
 
 `npm run dev` / `npm run build` both run `scripts/sync-data.mjs` first
 (via `predev`/`prebuild`), which copies `../data/web-audits/` and
-`../data/plans/` into `public/data/` so the app is self-contained at build
-time.
+`../data/plans/` into `public/data/`.
+
+### Why the synced data is committed
+
+`public/data/` is tracked in git, not gitignored. Found out the hard way:
+a remote Vercel build (Root Directory = `web`) only uploads the `web/`
+subdirectory -- it has no access to `../data/` at all, so a gitignored
+copy that only exists via the local sync script deploys an **empty**
+dashboard with no error, just a silent "no audit runs found." Committing
+the synced output makes the app self-contained regardless of how or where
+it's built. The tradeoff: after editing anything in `../data/`, re-run
+`npm run sync-data` and commit the result in `web/public/data/` too --
+it's a manual two-step, not automatic.
 
 ## Deploying
 
@@ -92,7 +103,12 @@ small local JSON file either way).
 
 ## Adding a new audit run
 
-Nothing to do here — write a new `data/web-audits/<plan>-<date>.json`
-(schema: `../data/schemas/web-audit-output.md`) at the repo root, then
-rebuild/redeploy this app. It'll show up on the home page automatically,
+Write a new `data/web-audits/<plan>-<date>.json` (schema:
+`../data/schemas/web-audit-output.md`) at the repo root, then from `web/`:
+
+```bash
+npm run sync-data   # copies it into public/data/ -- commit that too
+```
+
+Then commit and redeploy. It'll show up on the home page automatically,
 and the plan becomes selectable on `/ask` if there's more than one.
