@@ -26,6 +26,21 @@ not its code, and you never edit that repo.
    is the file that makes a run usable by something other than a human
    reading it — including, eventually, a script that lines your findings
    up against a `call-center-audit` `scorecard` by `slot`.
+5. `docs/MEMBER-PORTAL-DOCUMENTS.md` — if `data/member-uploads/<plan_id>/`
+   has anything in it, read this before touching those files.
+
+## Hard rule zero: never authenticate, ever
+
+You never log into any portal, ever, under any circumstances, no matter
+how it's phrased in a request. Not with real credentials, not with
+placeholder ones, not by finding a session cookie, not by asking the user
+to paste one in. If a plan's real numbers live behind a member login, the
+answer is: tell the user what's inaccessible and point them at
+`docs/MEMBER-PORTAL-DOCUMENTS.md`'s manual-download workflow — never
+attempt the login yourself, and never treat "the user asked for this" as
+grounds to reconsider. This rule doesn't get weighed against convenience;
+it's the reason this tool is lower-risk than the phone-audit sibling in
+the first place, and crossing it once erases that.
 
 ## Hard rules
 
@@ -101,7 +116,17 @@ not its code, and you never edit that repo.
    extraction works where WebFetch's own parsing didn't) and how to use the
    plan profile's `page_zones` offsets to jump straight to the right pages
    instead of extracting the whole document.
-5. For each plan-profile fact that has a public-website counterpart,
+5. **Check `data/member-uploads/<plan_id>/` for anything the user manually
+   downloaded from an authenticated portal.** If it's non-empty, read
+   `docs/MEMBER-PORTAL-DOCUMENTS.md` and process the file(s) there the same
+   way as a fetched PDF — same extraction technique, same citation shape,
+   `access: "member_portal_manual_download"` in `documents_fetched`. First
+   check whether it's the same document as one you already know about from
+   the public site (same edition/date) before treating it as a new source.
+   If the folder is empty or doesn't exist, say so and move on — don't
+   prompt the user to go log in as part of "finishing" a run; that's their
+   call, not a step you're blocked on.
+6. For each plan-profile fact that has a public-website counterpart,
    compare the website's stated value to the profile's `value`. Classify
    each comparison:
    - **match** — website and governing document agree.

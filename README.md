@@ -45,11 +45,16 @@ These came out of real time lost on the sibling project and apply here too:
    confident, citable, wrong findings.
 5. When the plan's own documents contradict each other, that's a finding
    against the documents, not against the website.
+6. **Never authenticate to anything, ever — no exceptions.** This tool
+   does not log into member portals, does not handle credentials, and
+   does not get reconsidered on this even if asked directly. If a document
+   is only reachable behind a login, that's a manual hand-off — see
+   [`docs/MEMBER-PORTAL-DOCUMENTS.md`](docs/MEMBER-PORTAL-DOCUMENTS.md).
 
 This tool carries less risk than the phone-audit sibling — no attestation,
-no consent regime — but still: respect `robots.txt`, rate-limit requests,
-and never point it at a member-authenticated portal area using real
-credentials.
+no consent regime — specifically *because* it stays off authenticated
+portals. Also: respect `robots.txt` and rate-limit requests on the public
+side.
 
 ## Structure
 
@@ -60,10 +65,12 @@ data/
   schemas/web-audit-output.md    OUR OWN output contract -- not synced, this repo's
   answer-key/plan-profile.template.json   the (currently stale) slot template, synced
   web-audits/<plan>-<date>.json  machine-readable audit runs, one file per run
+  member-uploads/<plan>/         GITIGNORED -- docs YOU download from a member portal, never us
 docs/
   SYNC.md                        what's synced, from where, when to re-sync
   SLOT-NAMESPACE.md              which slot vocabulary to trust right now
   NEEDED-SLOTS.md                facts found on-site with no registry slot yet
+  MEMBER-PORTAL-DOCUMENTS.md     the manual hand-off workflow for authenticated content
   audits/<plan>-<date>.md        human-readable rendering of a data/web-audits/ run
   triangulation/                 phone-transcript vs web-audit vs document cross-checks
 .claude/agents/
@@ -86,3 +93,9 @@ three-way comparison (rep says X, website says Y, document says Z) — see
 like, done before this JSON contract existed.
 
 To pull a fresher copy of the shared plan data, see `docs/SYNC.md`.
+
+**Have a document behind a member-portal login?** This tool won't fetch it
+— see [`docs/MEMBER-PORTAL-DOCUMENTS.md`](docs/MEMBER-PORTAL-DOCUMENTS.md).
+Short version: log in yourself, download it, drop it in
+`data/member-uploads/<plan_id>/`, then ask the agent to run again — it
+picks the file up from there and processes it exactly like a public PDF.

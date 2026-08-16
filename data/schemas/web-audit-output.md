@@ -28,12 +28,19 @@ in the output format instead of the fact names.
   "pages_crawled": ["https://…", "https://…"],  // HTML pages only
   "documents_fetched": [{                      // PDFs (or other non-HTML docs) fetched -- a PDF the
                                                   // plan's own site links to still counts as "the site"
-    "url": "https://…/Benefit-Description.pdf",
+    "url": "https://…/Benefit-Description.pdf",  // omit for member-portal docs -- see "access" below
     "pages_extracted": "5-13, 68-71",           // PDF page numbers actually pulled, not the whole doc
     "method": "webfetch | local-extraction",    // see data/schemas/web-audit-output.md notes below on
                                                   // when WebFetch's markdown conversion fails on a PDF
                                                   // and a local extraction fallback is needed instead
-    "page_zone_used": "printed_equals_pdf_minus offsets from the plan profile's _sources[doc].page_zones"
+    "page_zone_used": "printed_equals_pdf_minus offsets from the plan profile's _sources[doc].page_zones",
+    "access": "public | member_portal_manual_download",
+    // member_portal_manual_download = the user downloaded this themselves from an authenticated
+    // portal and dropped it in data/member-uploads/<plan_id>/ -- this tool never logs in itself,
+    // see docs/MEMBER-PORTAL-DOCUMENTS.md. "url" is omitted for these; use "local_path" instead
+    // (gitignored path, never committed) and note whether the content matches an already-known
+    // public document or is a genuinely new source.
+    "local_path": "data/member-uploads/hushp-ship-2026/Evidence-of-Coverage.pdf"
   }],
   "plan_profile_source": {                    // provenance — which synced snapshot this ran against
     "repo": "call-center-audit",
