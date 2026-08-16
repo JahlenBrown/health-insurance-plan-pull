@@ -3,6 +3,10 @@ import Anthropic from "@anthropic-ai/sdk";
 import { buildGroundingContext, listPlans } from "@/lib/grounding";
 
 export const runtime = "nodejs";
+// Explicit cap so a stuck request dies cleanly server-side rather than
+// running indefinitely -- the client also times out on its own (see
+// REQUEST_TIMEOUT_MS in components/AskChat.tsx) but this is the backstop.
+export const maxDuration = 60;
 
 const SYSTEM_PROMPT_TEMPLATE = (facts: string) => `You are a coverage-question assistant for a specific health insurance plan. You answer ONLY using the FACTS block below, extracted from the plan's own governing documents with page citations.
 

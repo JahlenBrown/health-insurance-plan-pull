@@ -10,6 +10,11 @@ interface Turn {
   truncated?: boolean;
 }
 
+// No request should hang the UI forever -- past this, show a clear
+// timeout error instead of leaving "thinking..." on screen with no way
+// to tell whether it's still working or just stuck.
+const REQUEST_TIMEOUT_MS = 45_000;
+
 export function AskChat({ plans }: { plans: PlanOption[] }) {
   const [planId, setPlanId] = useState(plans[0]?.id ?? "");
   const [question, setQuestion] = useState("");
@@ -25,11 +30,15 @@ export function AskChat({ plans }: { plans: PlanOption[] }) {
     const index = turns.length;
     setTurns((t) => [...t, { question: q }]);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
     try {
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, planId }),
+        signal: controller.signal,
       });
       const data = await res.json();
       setTurns((t) => {
@@ -39,13 +48,20 @@ export function AskChat({ plans }: { plans: PlanOption[] }) {
           : { question: q, error: data.error ?? "Something went wrong." };
         return copy;
       });
-    } catch {
+    } catch (err) {
+      const timedOut = err instanceof Error && err.name === "AbortError";
       setTurns((t) => {
         const copy = [...t];
-        copy[index] = { question: q, error: "Network error -- couldn't reach the API." };
+        copy[index] = {
+          question: q,
+          error: timedOut
+            ? `No response after ${REQUEST_TIMEOUT_MS / 1000}s -- try again, maybe with a shorter question.`
+            : "Network error -- couldn't reach the API.",
+        };
         return copy;
       });
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   }
