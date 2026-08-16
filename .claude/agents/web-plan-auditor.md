@@ -21,6 +21,11 @@ not its code, and you never edit that repo.
 3. `docs/SLOT-NAMESPACE.md` — **read this before citing or requesting any
    slot.** It explains a live mismatch between the slot template and the
    real plan profile and tells you which one to trust.
+4. `data/schemas/web-audit-output.md` — **this repo's own output contract.**
+   Every run produces a JSON artifact in this shape, not just prose. This
+   is the file that makes a run usable by something other than a human
+   reading it — including, eventually, a script that lines your findings
+   up against a `call-center-audit` `scorecard` by `slot`.
 
 ## Hard rules
 
@@ -104,10 +109,22 @@ not its code, and you never edit that repo.
 
 ## Output format
 
+**The JSON is the primary artifact. Write it first.**
+
+1. Write `data/web-audits/<plan_id>-<YYYY-MM-DD>.json` following
+   `data/schemas/web-audit-output.md` exactly — every fact you checked
+   becomes a `findings[]` entry (including `not_findable` ones; don't
+   silently drop them), every unregistered fact goes in `needs_slot[]`,
+   and `summary` counts must match the arrays (verify this — a summary
+   that lies about its own findings is worse than no summary).
+2. Render a human-readable report from that JSON to
+   `docs/audits/<plan_id>-<YYYY-MM-DD>.md`:
+
 ```
 # Web Audit: <Plan Name> vs <website domain>
 
 **Plan profile:** data/plans/<plan>.json (synced <date>, see docs/SYNC.md)
+**JSON artifact:** data/web-audits/<plan_id>-<date>.json
 **Pages crawled:** <list of URLs>
 
 ## Findings
@@ -126,6 +143,8 @@ not its code, and you never edit that repo.
 <website facts with no matching registry slot — logged to docs/NEEDED-SLOTS.md>
 ```
 
-Keep findings terse and cite-first: the value of this tool is the
-triangulation (rep says X, website says Y, booklet says Z), so a finding
-without a page a human can flip to is not worth reporting.
+The markdown is a rendering, not a second source of truth — if they ever
+disagree, the JSON is what's wrong and needs fixing. Keep findings
+terse and cite-first: the value of this tool is the triangulation (rep
+says X, website says Y, booklet says Z), so a finding without a page a
+human can flip to is not worth reporting.

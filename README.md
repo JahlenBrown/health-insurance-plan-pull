@@ -56,11 +56,16 @@ credentials.
 ```
 data/
   plans/<plan>.json              synced from call-center-audit, read-only here
-  schemas/README.md              the data-contract doc, synced
+  schemas/README.md              their data-contract doc, synced, read-only here
+  schemas/web-audit-output.md    OUR OWN output contract -- not synced, this repo's
   answer-key/plan-profile.template.json   the (currently stale) slot template, synced
+  web-audits/<plan>-<date>.json  machine-readable audit runs, one file per run
 docs/
   SYNC.md                        what's synced, from where, when to re-sync
   SLOT-NAMESPACE.md              which slot vocabulary to trust right now
+  NEEDED-SLOTS.md                facts found on-site with no registry slot yet
+  audits/<plan>-<date>.md        human-readable rendering of a data/web-audits/ run
+  triangulation/                 phone-transcript vs web-audit vs document cross-checks
 .claude/agents/
   web-plan-auditor.md            the audit subagent — start here
 ```
@@ -69,6 +74,15 @@ docs/
 
 Point the `web-plan-auditor` subagent at a plan (e.g. `data/plans/hushp-2026.json`)
 and the carrier's public site. It reads the plan profile, crawls the
-relevant public pages, and returns a findings table with citations.
+relevant public pages, and writes a `data/web-audits/*.json` artifact
+(schema: `data/schemas/web-audit-output.md`) plus a human-readable
+`docs/audits/*.md` rendering of the same findings.
+
+The JSON is the integration point with `call-center-audit`: its
+`citation`/`severity` shapes intentionally mirror their `scorecard.flags[]`,
+so a downstream step can line up findings by `slot` and produce a true
+three-way comparison (rep says X, website says Y, document says Z) — see
+`docs/triangulation/` for a hand-done example of what that comparison looks
+like, done before this JSON contract existed.
 
 To pull a fresher copy of the shared plan data, see `docs/SYNC.md`.
