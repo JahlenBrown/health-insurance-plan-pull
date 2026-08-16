@@ -8,10 +8,11 @@
     "prebuild": "npm run sync-data",
     "dev": "next dev",
     "build": "next build",
-    "start": "npx serve out",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8"

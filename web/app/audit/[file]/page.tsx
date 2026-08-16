@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { listAudits, loadAudit } from "@/lib/audits";
+import { loadAudit } from "@/lib/audits";
 import { VerdictBadge, SeverityBadge } from "@/components/Badge";
 import type { Citation } from "@/lib/types";
 
-export function generateStaticParams() {
-  return listAudits().map(({ file }) => ({ file }));
-}
+// Deliberately NOT statically generated (no generateStaticParams): the
+// Vercel CLI build used for this project hits "Unable to find lambda for
+// route" on this SSG route with the installed Next.js version. Rendering
+// on-demand instead avoids that entirely -- the underlying data is still
+// a build-time file read either way, so there's no real cost to not
+// pre-rendering it.
+export const dynamic = "force-dynamic";
 
 export default async function AuditDetailPage({
   params,

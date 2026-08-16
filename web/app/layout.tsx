@@ -30,12 +30,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <a href="/" className="font-semibold tracking-tight">
               Health Insurance Plan Pull
             </a>
-            <a
-              href="https://github.com/JahlenBrown/health-insurance-plan-pull"
-              className="text-sm text-black/60 dark:text-white/60 hover:underline"
-            >
-              GitHub ↗
-            </a>
+            <nav className="flex items-center gap-5">
+              <a
+                href="/ask"
+                className="text-sm text-black/60 dark:text-white/60 hover:underline"
+              >
+                Ask About Coverage
+              </a>
+              <a
+                href="https://github.com/JahlenBrown/health-insurance-plan-pull"
+                className="text-sm text-black/60 dark:text-white/60 hover:underline"
+              >
+                GitHub ↗
+              </a>
+            </nav>
           </div>
         </header>
         <main className="flex-1 mx-auto max-w-5xl w-full px-6 py-8">

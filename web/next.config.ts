@@ -1,12 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Fully static: every page is build-time-only (fs reads of data/ JSON,
-  // generateStaticParams for the audit detail route), no server actions or
-  // API routes. Static export deploys as plain files -- no serverless
-  // function/lambda involved, sidestepping the Vercel builder issue seen
-  // with SSG dynamic routes on this Next.js version.
-  output: "export",
+  // NOT a static export anymore -- /api/ask needs a real serverless
+  // function (calls the Anthropic API at request time). Everything else
+  // (the audit pages) still statically optimizes on its own; only the API
+  // route becomes a Vercel function.
 };
 
 export default nextConfig;

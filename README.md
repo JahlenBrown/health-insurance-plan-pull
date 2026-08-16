@@ -102,10 +102,14 @@ Short version: log in yourself, download it, drop it in
 `data/member-uploads/<plan_id>/`, then ask the agent to run again — it
 picks the file up from there and processes it exactly like a public PDF.
 
-## Web dashboard
+## Web dashboard + coverage Q&A
 
-`web/` is a static Next.js viewer for everything in `data/web-audits/` —
+`web/` is a Next.js app: a viewer for everything in `data/web-audits/` —
 findings table, needs-slot requests, source provenance (public vs.
-member-portal-manual), all rendered from the same JSON the agent writes.
-See [`web/README.md`](web/README.md) for local dev and deploy instructions
-(`vercel deploy --temporary` works without logging in, for quick checks).
+member-portal-manual) — plus an `/ask` page where anyone can type a
+coverage question ("How much do prescriptions cost on my plan?") and get
+an answer grounded only in the extracted plan facts, citations included,
+same anti-hallucination rules as everywhere else in this repo. Needs your
+own `ANTHROPIC_API_KEY` as an env var — see [`web/README.md`](web/README.md)
+for setup, local dev, and deploy instructions (including a Windows-specific
+`vercel deploy` gotcha).
