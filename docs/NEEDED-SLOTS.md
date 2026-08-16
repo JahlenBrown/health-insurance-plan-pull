@@ -11,12 +11,12 @@ report to use the real name.
 
 ## Open requests
 
-| Proposed name | What it captures | First seen | Source |
-|---|---|---|---|
-| `rx_pbm_subcontractor` | Name of the PBM handling out-of-network pharmacy claims (e.g. "CVS Caremark") — the plan profile's `rx_administrator` fact explicitly notes this isn't stated in any plan document | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
-| `rx_antimalarial_cost_share` | Coinsurance rate for antimalarial drugs (distinct tier structure from standard Rx tiers) | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
-| `rx_contraceptive_waiver_scope` | Which contraceptive products get the $0 waiver — profile's existing note only documents Tier-1/generic; website says "generic or brand name" | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
-| `mental_health_visit_limit` | Whether there's a cap on number of mental health visits (separate dimension from the existing `mental_health_outpatient` cost-share fact) | 2026-08-16 audit | hushp.harvard.edu mental-health-coverage page |
-| `vision_eyewear_coverage` | Eyewear (glasses/contacts) coverage — pediatric coinsurance tiers, adult exclusion, LASIK exclusion. No existing slot covers eyewear, only exams | 2026-08-16 audit | hushp.harvard.edu vision-care page |
+| Proposed name | What it captures | Document backing | First seen | Source |
+|---|---|---|---|---|
+| `rx_pbm_subcontractor` | Name of the PBM handling out-of-network pharmacy claims (e.g. "CVS Caremark") | **None** — checked BD pp.51-54 directly, no PBM named anywhere; confirms `rx_administrator`'s own caveat that this is undocumented | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
+| `rx_antimalarial_cost_share` | 50% coinsurance for antimalarial drugs (distinct tier structure from standard Rx tiers) | **Confirmed** — BD SoB p.6 states it verbatim | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
+| `rx_contraceptive_waiver_scope` | Which contraceptive products get the $0 waiver | **Confirmed, website is accurate** — BD p.53: generic waived, brand-name waived too when generic isn't available/appropriate. Website's "generic or brand name" holds up; it just omits the medical-necessity condition on brand | 2026-08-16 audit | hushp.harvard.edu prescription-drug-benefits page |
+| `mental_health_visit_limit` | Whether there's a cap on number of mental health visits (separate dimension from the existing `mental_health_outpatient` cost-share fact) | **Silent** — neither BD nor SMB states a cap either way; doesn't contradict the website's "no limit" claim | 2026-08-16 audit | hushp.harvard.edu mental-health-coverage page |
+| `vision_eyewear_coverage` | Eyewear (glasses/contacts) coverage — pediatric coinsurance tiers, adult exclusion, LASIK exclusion. No existing slot covers eyewear, only exams | **Confirmed exact match** — BD SoB p.7: pediatric 35%/55%, adult not covered | 2026-08-16 audit | hushp.harvard.edu vision-care page |
 
 See `docs/audits/hushp-2026-08-16.md` for full context on each.

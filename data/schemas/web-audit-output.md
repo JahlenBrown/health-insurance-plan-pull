@@ -25,7 +25,16 @@ in the output format instead of the fact names.
   "plan_id": "hushp-ship-2026",              // matches the plan profile's own "id"
   "site": "hushp.harvard.edu",
   "audited_at": "2026-08-16T18:00:00Z",       // ISO timestamp of the run
-  "pages_crawled": ["https://…", "https://…"],
+  "pages_crawled": ["https://…", "https://…"],  // HTML pages only
+  "documents_fetched": [{                      // PDFs (or other non-HTML docs) fetched -- a PDF the
+                                                  // plan's own site links to still counts as "the site"
+    "url": "https://…/Benefit-Description.pdf",
+    "pages_extracted": "5-13, 68-71",           // PDF page numbers actually pulled, not the whole doc
+    "method": "webfetch | local-extraction",    // see data/schemas/web-audit-output.md notes below on
+                                                  // when WebFetch's markdown conversion fails on a PDF
+                                                  // and a local extraction fallback is needed instead
+    "page_zone_used": "printed_equals_pdf_minus offsets from the plan profile's _sources[doc].page_zones"
+  }],
   "plan_profile_source": {                    // provenance — which synced snapshot this ran against
     "repo": "call-center-audit",
     "commit": "4a397d86",
@@ -63,11 +72,38 @@ in the output format instead of the fact names.
 }
 ```
 
+## Fetching PDFs
+
+Most of a plan's real numbers (deductibles, copays, ER, inpatient) live in
+PDFs, not HTML pages — a run that only crawls HTML will report most facts
+as `not_findable` for no reason other than not having tried. Plan-linked
+PDFs are still "the site": fetch them.
+
+1. Try `WebFetch` on the PDF URL first. It sometimes works.
+2. It sometimes doesn't — some PDFs come back as garbled binary/stream
+   data WebFetch can't decode (seen in practice on HUSHP's Benefit
+   Description). When that happens, WebFetch still saves the raw file
+   locally (the response tells you the path) — read *that* with the `Read`
+   tool's PDF support, or extract text from it directly, rather than
+   giving up on the document.
+3. Don't extract the whole PDF blindly. Use the plan profile's own
+   `_sources[doc].page_zones` (`printed_equals_pdf_minus` offset) to jump
+   straight to the PDF pages that hold the citations you need — e.g. BD's
+   Schedule of Benefits is printed 1–9 = PDF pages 5–13, so `pdf_page =
+   printed_page + 4` for that zone, `+ 17` for the body zone. Record which
+   pages you pulled in `documents_fetched[].pages_extracted`.
+4. A PDF fetched this way is a legitimate `website_source` for a finding
+   — it's still the plan's own public site, just not an HTML page.
+
 ## Rules
 
 - One file per audit run, named `<plan_id>-<YYYY-MM-DD>.json`, written to
-  `data/web-audits/`. Don't overwrite a prior run — each is a dated
-  snapshot, same pattern as `docs/audits/`.
+  `data/web-audits/`. Don't overwrite a prior run with a *different* one —
+  each date is a snapshot, same pattern as `docs/audits/`. Extending the
+  *same* day's run with more coverage (e.g. adding PDF findings after an
+  HTML-only first pass) updates the file in place; add a top-level
+  `"revision"` string explaining what was added and why, so the file's own
+  history stays legible without needing git blame.
 - `findings[].slot` must exist in the plan profile's `facts` — if it
   doesn't, the finding belongs in `needs_slot`, not `findings`, and gets
   no `citation` or `document_value` (there's nothing to cite yet).

@@ -90,7 +90,18 @@ not its code, and you never edit that repo.
    pharmacy/formulary pages, appeals/grievance pages, FAQ — using
    `WebFetch` where possible, falling back to the browser tools for
    JS-rendered content.
-4. For each plan-profile fact that has a public-website counterpart,
+4. **Fetch the linked PDFs too — don't stop at HTML.** Most of a plan's
+   real numbers (deductibles, PCP/specialist/ER/inpatient copays) live only
+   in the Benefit Description / Summary / Handbook PDFs, not on any HTML
+   page. A run that skips them will report most facts as `not_findable` for
+   no better reason than not having tried — see `data/schemas/web-audit-output.md`
+   → "Fetching PDFs" for the exact procedure, including the WebFetch
+   fallback (it sometimes returns garbled binary for a PDF; when that
+   happens it still saves the raw file locally, and reading that with local
+   extraction works where WebFetch's own parsing didn't) and how to use the
+   plan profile's `page_zones` offsets to jump straight to the right pages
+   instead of extracting the whole document.
+5. For each plan-profile fact that has a public-website counterpart,
    compare the website's stated value to the profile's `value`. Classify
    each comparison:
    - **match** — website and governing document agree.
