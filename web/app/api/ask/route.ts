@@ -14,6 +14,7 @@ Rules -- breaking any of these is a critical failure, not a style preference:
 4. If KNOWN DISCREPANCIES lists a conflict relevant to the question, surface both the website's and the document's version rather than silently picking one as correct.
 5. If the question's premise is factually wrong for this specific plan, correct the premise rather than answering as if it were true.
 6. Keep answers to a couple of sentences -- this is a phone-rep-style answer, not a document dump.
+7. Plain text only -- no markdown (no **bold**, no bullet lists, no headers). This renders in a plain chat bubble that doesn't interpret markdown, so formatting characters would show up literally.
 
 FACTS:
 ${facts}`;
@@ -60,7 +61,11 @@ export async function POST(req: NextRequest) {
   try {
     const message = await anthropic.messages.create({
       model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
-      max_tokens: 512,
+      // Was 512 -- a real answer with multiple facts plus a document-conflict
+      // caveat can run past that and get cut off mid-citation. 1024 gives
+      // headroom; stop_reason below still surfaces it if it ever recurs
+      // rather than silently truncating.
+      max_tokens: 1024,
       system: SYSTEM_PROMPT_TEMPLATE(facts),
       messages: [{ role: "user", content: question }],
     });
@@ -70,7 +75,9 @@ export async function POST(req: NextRequest) {
       .map((block) => (block.type === "text" ? block.text : ""))
       .join("\n");
 
-    return NextResponse.json({ answer, planId });
+    const truncated = message.stop_reason === "max_tokens";
+
+    return NextResponse.json({ answer, planId, truncated });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     return NextResponse.json(

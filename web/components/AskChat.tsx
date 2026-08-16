@@ -7,6 +7,7 @@ interface Turn {
   question: string;
   answer?: string;
   error?: string;
+  truncated?: boolean;
 }
 
 export function AskChat({ plans }: { plans: PlanOption[] }) {
@@ -34,7 +35,7 @@ export function AskChat({ plans }: { plans: PlanOption[] }) {
       setTurns((t) => {
         const copy = [...t];
         copy[index] = res.ok
-          ? { question: q, answer: data.answer }
+          ? { question: q, answer: data.answer, truncated: data.truncated }
           : { question: q, error: data.error ?? "Something went wrong." };
         return copy;
       });
@@ -92,7 +93,15 @@ export function AskChat({ plans }: { plans: PlanOption[] }) {
                   {t.error}
                 </span>
               ) : t.answer ? (
-                <span className="whitespace-pre-wrap">{t.answer}</span>
+                <>
+                  <span className="whitespace-pre-wrap">{t.answer}</span>
+                  {t.truncated && (
+                    <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+                      (Response hit the length limit and may be cut off --
+                      try asking a narrower question.)
+                    </p>
+                  )}
+                </>
               ) : (
                 <span className="text-black/40 dark:text-white/40 italic">
                   thinking…
